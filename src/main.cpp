@@ -7,8 +7,8 @@
 #include <Adafruit_SSD1306.h>
 #include <math.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define SCREEN_WIDTH 128 // OLED display width(largura), in pixels
+#define SCREEN_HEIGHT 64 // OLED display height(altura), in pixels
 #define led 13
 #define sensor10k 0
 
@@ -18,6 +18,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_BME280 bme;
 
 void setup() {
+  
   pinMode(led, OUTPUT);
   pinMode(sensor10k, INPUT);
   Serial.begin(115200);
@@ -45,7 +46,11 @@ void run() {
   static unsigned long ultimaLeitura2 = millis();
   static unsigned long ultimaLeitura3 = millis();
   static unsigned long ultimaLeitura4 = millis();
-  static float mediaUmi, mediaTemp, mediaPress, media10k, soma10k, somaUmi, somaTemp, somaPress;
+  static float soma10k, somaUmi, somaTemp, somaPress;
+  static float mediaUmi = bme.readHumidity();
+  static float mediaTemp = bme.readTemperature();
+  static float mediaPress = bme.readPressure() / 100.0F;
+  static float media10k = getTemp();
   static int cont = 0;
   static int minuto, hora, dias;
   minuto = hora = dias = 0;
@@ -57,8 +62,8 @@ void run() {
   if (cont < divisor) {
 
     somaUmi += bme.readHumidity();
-    somaPress += bme.readPressure() / 100.0F;
     somaTemp += bme.readTemperature();
+    somaPress += bme.readPressure() / 100.0F;
     soma10k += getTemp();
     cont++;
     digitalWrite(led, 0);
@@ -114,6 +119,7 @@ void run() {
   }
 
   if ((millis() - ultimaLeitura0) > 500) {
+
     ultimaLeitura0 = millis();
   }
   
@@ -123,6 +129,7 @@ void run() {
     Serial.println(mediaUmi, DEC);
   }
   if ((millis() - ultimaLeitura1) > 500) {
+
     ultimaLeitura1 = millis();
   }
 
@@ -132,6 +139,7 @@ void run() {
     Serial.println(mediaTemp, DEC); 
   }
   if ((millis() - ultimaLeitura2) > 500) {
+
     ultimaLeitura2 = millis();
   }
 
@@ -142,15 +150,18 @@ void run() {
   }
 
   if ((millis() - ultimaLeitura3) > 500) {
+
     ultimaLeitura3 = millis();
   }
 
   if ((millis() - ultimaLeitura4) < 100) {
+
     Serial.print("2 ");
     Serial.println(media10k, DEC);
   }
 
   if ((millis() - ultimaLeitura4) > 500) {
+
     ultimaLeitura4 = millis();
   }
 }
