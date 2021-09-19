@@ -25,8 +25,9 @@ void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
   bme.begin(0x76);
   display.clearDisplay();
-  delay(10000);
+  delay(10);
 }
+
 double getTemp() {
   
   int RawADC = analogRead(sensor10k);
@@ -85,7 +86,7 @@ void run() {
     display.setTextSize(1);
     display.setTextColor(WHITE);
     display.setCursor(2, 5);
-    display.println("ESTACAO METEREOLOGICA");
+    display.println("ESTACAO METEOROLOGICA");
     display.setCursor(14, 17);
     display.print("Umidade: ");
     display.print(mediaUmi);
