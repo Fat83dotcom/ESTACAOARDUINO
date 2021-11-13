@@ -28,6 +28,77 @@ void setup() {
   delay(10);
 }
 
+class FiltraNaN {
+
+  private:
+  float _Umi;
+  float _Temp;
+  float _Press;
+  double _10k;
+  int cont;
+
+  public:
+  float umi_NaN(float umi) {
+    _Umi = umi;
+    cont = 0;
+    while (isnan(_Umi) && cont < 1000){
+      _Umi = umi;
+      cont ++;
+    }
+    if (cont == 1000) {
+      return 0;
+    }
+    else {
+      return _Umi;
+    }
+  }
+
+  float temp_Nan(float temp) {
+    _Temp = temp;
+    cont = 0;
+    while (isnan(_Temp) && cont < 1000) {
+      _Temp = temp;
+      cont++;
+    }
+    if (cont ==1000) {
+      return 0;
+    }
+    else {
+      return _Temp;
+    }
+  }
+
+  float press_Nan(float press) {
+    _Press = press;
+    cont = 0;
+    while (isnan(_Press) && cont < 1000) {
+      _Press = press;
+      cont++;
+    }
+    if (cont == 1000) {
+      return 0;
+    }
+    else {
+      return _Press;
+    }
+  }
+
+  double t10k_Nan(double t10k) {
+    _10k = t10k;
+    cont = 0;
+    while (isnan(_10k) && cont < 1000) {
+      _10k = t10k;
+      cont++;
+    }
+    if (cont == 1000) {
+      return 0;
+    }
+    else {
+      return _10k;
+    }
+  }
+};
+
 double getTemp() {
   
   int RawADC = analogRead(sensor10k);
@@ -42,16 +113,19 @@ double getTemp() {
 
 void run() {
 
+  FiltraNaN fNaN;
+
+  static float mediaUmi;
+  static float mediaTemp;
+  static float mediaPress;
+  static float media10k;
   static unsigned long ultimaLeitura0 = millis();
   static unsigned long ultimaLeitura1 = millis();
   static unsigned long ultimaLeitura2 = millis();
   static unsigned long ultimaLeitura3 = millis();
   static unsigned long ultimaLeitura4 = millis();
   static float soma10k, somaUmi, somaTemp, somaPress;
-  static float mediaUmi = bme.readHumidity();
-  static float mediaTemp = bme.readTemperature();
-  static float mediaPress = bme.readPressure() / 100.0F;
-  static float media10k = getTemp();
+  
   static int cont = 0;
   static int minuto, hora, dias;
   minuto = hora = dias = 0;
@@ -62,10 +136,10 @@ void run() {
   
   if (cont < divisor) {
 
-    somaUmi += bme.readHumidity();
-    somaTemp += bme.readTemperature();
-    somaPress += bme.readPressure() / 100.0F;
-    soma10k += getTemp();
+    somaUmi += fNaN.umi_NaN(bme.readHumidity());
+    somaTemp += fNaN.temp_Nan(bme.readTemperature());
+    somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F);
+    soma10k += fNaN.t10k_Nan(getTemp());
     cont++;
     digitalWrite(led, 0);
   }
