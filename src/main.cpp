@@ -28,6 +28,22 @@ void setup() {
   delay(10);
 }
 
+class Temporarios{
+  private:
+  float t_Umi;
+  float t_Temp;
+  float t_Press;
+  double t_10k;
+
+  public:
+  
+    float *pt_U = &t_Umi;
+    float *pt_T = &t_Temp;
+    float *pt_P = &t_Temp;
+    double *pt_10 = &t_10k;
+
+};
+
 class FiltraNaN {
 
   private:
@@ -38,60 +54,73 @@ class FiltraNaN {
   int cont;
 
   public:
-  float umi_NaN(float umi) {
+  float umi_NaN(float umi, float *u) {
     _Umi = umi;
+    if (!isnan(_Umi)) {
+      *u = _Umi;
+    }
     cont = 0;
     while (isnan(_Umi) && cont < 1000){
       _Umi = umi;
       cont ++;
     }
     if (cont == 1000) {
-      return 0;
+      return *u;
     }
     else {
       return _Umi;
     }
   }
 
-  float temp_Nan(float temp) {
+  float temp_Nan(float temp, float *t) {
     _Temp = temp;
+    if (!isnan(_Temp)) {
+      *t = _Temp;
+    }
     cont = 0;
     while (isnan(_Temp) && cont < 1000) {
       _Temp = temp;
       cont++;
     }
-    if (cont ==1000) {
-      return 0;
+    if (cont == 1000) {
+      return *t;
     }
     else {
       return _Temp;
     }
   }
 
-  float press_Nan(float press) {
+  float press_Nan(float press, float *p) {
     _Press = press;
+    if (!isnan(_Press)) {
+      *p = _Press;
+    }
+    
     cont = 0;
     while (isnan(_Press) && cont < 1000) {
       _Press = press;
       cont++;
     }
     if (cont == 1000) {
-      return 0;
+      return *p;
     }
     else {
       return _Press;
     }
   }
 
-  double t10k_Nan(double t10k) {
+  double t10k_Nan(double t10k, double *t10) {
     _10k = t10k;
+    if (!isnan(_10k)) {
+      *t10 = _10k;
+    }
     cont = 0;
     while (isnan(_10k) && cont < 1000) {
       _10k = t10k;
       cont++;
     }
     if (cont == 1000) {
-      return 0;
+      return *t10;
     }
     else {
       return _10k;
@@ -110,6 +139,8 @@ double getTemp() {
   Temp = Temp - 273.15;  // Convert Kelvin to Celsius
   return Temp;  
 }
+
+Temporarios t;
 
 void run() {
 
@@ -136,10 +167,10 @@ void run() {
   
   if (cont < divisor) {
 
-    somaUmi += fNaN.umi_NaN(bme.readHumidity());
-    somaTemp += fNaN.temp_Nan(bme.readTemperature());
-    somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F);
-    soma10k += fNaN.t10k_Nan(getTemp());
+    somaUmi += fNaN.umi_NaN(bme.readHumidity(),t.pt_U);
+    somaTemp += fNaN.temp_Nan(bme.readTemperature(), t.pt_T);
+    somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F, t.pt_P);
+    soma10k += fNaN.t10k_Nan(getTemp(), t.pt_10);
     cont++;
     digitalWrite(led, 0);
   }
