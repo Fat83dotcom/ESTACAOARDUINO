@@ -6,18 +6,21 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <math.h>
+#include "classesdefiltro.h"
 
 #define SCREEN_WIDTH 128 // OLED display width(largura), in pixels
 #define SCREEN_HEIGHT 64 // OLED display height(altura), in pixels
 #define LED 13
 #define SENSOR10_K 0
 #define TEMPO_IN 100
-#define TEMPO_OUT 200
+#define TEMPO_OUT 470
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_BME280 bme;
+Temporarios t;
+FiltraNaN fNaN;
 
 void setup() {
   
@@ -29,106 +32,6 @@ void setup() {
   display.clearDisplay();
   delay(10);
 }
-
-class Temporarios{
-  private:
-  float t_Umi;
-  float t_Temp;
-  float t_Press;
-  double t_10k;
-
-  public:
-  
-    float *pt_U = &t_Umi;
-    float *pt_T = &t_Temp;
-    float *pt_P = &t_Temp;
-    double *pt_10 = &t_10k;
-
-};
-
-class FiltraNaN {
-
-  private:
-  float _Umi;
-  float _Temp;
-  float _Press;
-  double _10k;
-  int cont;
-
-  public:
-  float umi_NaN(float umi, float *u) {
-    _Umi = umi;
-    if (!isnan(_Umi)) {
-      *u = _Umi;
-    }
-    cont = 0;
-    while (isnan(_Umi) && cont < 1000){
-      _Umi = umi;
-      cont ++;
-    }
-    if (cont == 1000) {
-      return *u;
-    }
-    else {
-      return _Umi;
-    }
-  }
-
-  float temp_Nan(float temp, float *t) {
-    _Temp = temp;
-    if (!isnan(_Temp)) {
-      *t = _Temp;
-    }
-    cont = 0;
-    while (isnan(_Temp) && cont < 1000) {
-      _Temp = temp;
-      cont++;
-    }
-    if (cont == 1000) {
-      return *t;
-    }
-    else {
-      return _Temp;
-    }
-  }
-
-  float press_Nan(float press, float *p) {
-    _Press = press;
-    if (!isnan(_Press)) {
-      *p = _Press;
-    }
-    
-    cont = 0;
-    while (isnan(_Press) && cont < 1000) {
-      _Press = press;
-      cont++;
-    }
-    if (cont == 1000) {
-      return *p;
-    }
-    else {
-      return _Press;
-    }
-  }
-
-  double t10k_Nan(double t10k, double *t10) {
-    _10k = t10k;
-    if (!isnan(_10k)) {
-      *t10 = _10k;
-    }
-    cont = 0;
-    while (isnan(_10k) && cont < 1000) {
-      _10k = t10k;
-      cont++;
-    }
-    if (cont == 1000) {
-      return *t10;
-    }
-    else {
-      return _10k;
-    }
-  }
-};
 
 double getTemp() {
   
@@ -142,11 +45,7 @@ double getTemp() {
   return Temp;  
 }
 
-Temporarios t;
-
 void run() {
-
-  FiltraNaN fNaN;
 
   static float mediaUmi;
   static float mediaTemp;
@@ -169,7 +68,7 @@ void run() {
   
   if (cont < divisor) {
 
-    somaUmi += fNaN.umi_NaN(bme.readHumidity(),t.pt_U);
+    somaUmi += fNaN.umi_NaN(bme.readHumidity(), t.pt_U);
     somaTemp += fNaN.temp_Nan(bme.readTemperature(), t.pt_T);
     somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F, t.pt_P);
     soma10k += fNaN.t10k_Nan(getTemp(), t.pt_10);
