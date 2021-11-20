@@ -6,7 +6,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <math.h>
-#include "classesdefiltro.h"
+#include "myClassAndFunctions.h"
 
 #define SCREEN_WIDTH 128 // OLED display width(largura), in pixels
 #define SCREEN_HEIGHT 64 // OLED display height(altura), in pixels
@@ -33,17 +33,7 @@ void setup() {
   delay(10);
 }
 
-double getTemp() {
-  
-  int RawADC = analogRead(SENSOR10_K);
-  long Resistance;
-  double Temp;
-  Resistance=((10240000/RawADC) - 10000);
-  Temp = log(Resistance);
-  Temp = 1 / (0.001129148 + (0.000234125 * Temp) + (0.0000000876741 * Temp * Temp * Temp));
-  Temp = Temp - 273.15;  // Convert Kelvin to Celsius
-  return Temp;  
-}
+double getTemp(int sensor);
 
 void run() {
 
@@ -71,7 +61,7 @@ void run() {
     somaUmi += fNaN.umi_NaN(bme.readHumidity(), t.pt_U);
     somaTemp += fNaN.temp_Nan(bme.readTemperature(), t.pt_T);
     somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F, t.pt_P);
-    soma10k += fNaN.t10k_Nan(getTemp(), t.pt_10);
+    soma10k += fNaN.t10k_Nan(getTemp(SENSOR10_K), t.pt_10);
     cont++;
     digitalWrite(LED, 0);
   }
