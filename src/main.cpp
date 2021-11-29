@@ -8,24 +8,24 @@
 #include <math.h>
 #include "myClassAndFunctions.h"
 
-#define SCREEN_WIDTH 128 // OLED display width(largura), in pixels
-#define SCREEN_HEIGHT 64 // OLED display height(altura), in pixels
-#define LED 13
-#define SENSOR10_K 0
-#define TEMPO_IN 100
-#define TEMPO_OUT 470
+const int led = 13;
+const int sensorK10 = 0;
+const int tempoIn = 100;
+const int tempoOut = 470;
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+#define SCREEN_WIDTH 128 // Oled display width(largura), in pixels
+#define SCREEN_HEIGHT 64 // Oled display height(altura), in pixels
+#define Oled_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, Oled_RESET);
 Adafruit_BME280 bme;
 Temporarios t;
-FiltraNaN fNaN;
+FiltraNaN filtroNaN;
 
 void setup() {
   
-  pinMode(LED, OUTPUT);
-  pinMode(SENSOR10_K, INPUT);
+  pinMode(led, OUTPUT);
+  pinMode(sensorK10, INPUT);
   Serial.begin(115200);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
   bme.begin(0x76);
@@ -37,16 +37,16 @@ double getTemp(int sensor);
 
 void run() {
 
-  static float mediaUmi;
-  static float mediaTemp;
-  static float mediaPress;
-  static float media10k;
+  static double mediaUmi;
+  static double mediaTemp;
+  static double mediaPress;
+  static double media10k;
   static unsigned long ultimaLeitura0 = millis();
   static unsigned long ultimaLeitura1 = millis();
   static unsigned long ultimaLeitura2 = millis();
   static unsigned long ultimaLeitura3 = millis();
   static unsigned long ultimaLeitura4 = millis();
-  static float soma10k, somaUmi, somaTemp, somaPress;
+  static double soma10k, somaUmi, somaTemp, somaPress;
   
   static int cont = 0;
   static int minuto, hora, dias;
@@ -58,12 +58,12 @@ void run() {
   
   if (cont < divisor) {
 
-    somaUmi += fNaN.umi_NaN(bme.readHumidity(), t.pt_U);
-    somaTemp += fNaN.temp_Nan(bme.readTemperature(), t.pt_T);
-    somaPress += fNaN.press_Nan(bme.readPressure() / 100.0F, t.pt_P);
-    soma10k += fNaN.t10k_Nan(getTemp(SENSOR10_K), t.pt_10);
+    somaUmi += filtroNaN.umi_NaN(bme.readHumidity(), t.pt_U);
+    somaTemp += filtroNaN.temp_Nan(bme.readTemperature(), t.pt_T);
+    somaPress += filtroNaN.press_Nan(bme.readPressure() / 100.0F, t.pt_P);
+    soma10k += filtroNaN.t10k_Nan(getTemp(sensorK10), t.pt_10);
     cont++;
-    digitalWrite(LED, 0);
+    digitalWrite(led, 0);
   }
   else {
     
@@ -73,7 +73,7 @@ void run() {
     media10k = soma10k / divisor;
     cont = 0;
     somaUmi = somaTemp = somaPress = soma10k = 0;
-    digitalWrite(LED, 1);
+    digitalWrite(led, 1);
   }
 
   if ((millis() - ultimaLeitura0) < 495) {
@@ -120,44 +120,44 @@ void run() {
     ultimaLeitura0 = millis();
   }
   
-  if ((millis() - ultimaLeitura1) < TEMPO_IN) {
+  if ((millis() - ultimaLeitura1) < tempoIn) {
 
     Serial.print("u ");
     Serial.println(mediaUmi, DEC);
   }
-  if ((millis() - ultimaLeitura1) > TEMPO_OUT) {
+  if ((millis() - ultimaLeitura1) > tempoOut) {
 
     ultimaLeitura1 = millis();
   }
 
-  if ((millis() - ultimaLeitura2) < TEMPO_IN) {
+  if ((millis() - ultimaLeitura2) < tempoIn) {
    
     Serial.print("1 ");
     Serial.println(mediaTemp, DEC); 
   }
-  if ((millis() - ultimaLeitura2) > TEMPO_OUT) {
+  if ((millis() - ultimaLeitura2) > tempoOut) {
 
     ultimaLeitura2 = millis();
   }
 
-  if ((millis() - ultimaLeitura3) < TEMPO_IN) {
+  if ((millis() - ultimaLeitura3) < tempoIn) {
 
     Serial.print("p ");
     Serial.println(mediaPress, DEC);
   }
 
-  if ((millis() - ultimaLeitura3) > TEMPO_OUT) {
+  if ((millis() - ultimaLeitura3) > tempoOut) {
 
     ultimaLeitura3 = millis();
   }
 
-  if ((millis() - ultimaLeitura4) < TEMPO_IN) {
+  if ((millis() - ultimaLeitura4) < tempoIn) {
 
     Serial.print("2 ");
     Serial.println(media10k, DEC);
   }
 
-  if ((millis() - ultimaLeitura4) > TEMPO_OUT) {
+  if ((millis() - ultimaLeitura4) > tempoOut) {
 
     ultimaLeitura4 = millis();
   }
