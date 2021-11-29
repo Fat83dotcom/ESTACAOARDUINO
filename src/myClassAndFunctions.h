@@ -8,73 +8,62 @@ class Temporarios;
 class FiltraNaN;
 double getTemp(int sensor);
 
-
-class Temporarios{
+class Temporarios {
   private:
-  float t_Umi;
-  float t_Temp;
-  float t_Press;
+  double t_Umi;
+  double t_Temp;
+  double t_Press;
   double t_10k;
 
   public:
-  
-    float *pt_U = &t_Umi;
-    float *pt_T = &t_Temp;
-    float *pt_P = &t_Temp;
-    double *pt_10 = &t_10k;
+  double *pt_U = &t_Umi;
+  double *pt_T = &t_Temp;
+  double *pt_P = &t_Temp;
+  double *pt_10 = &t_10k;
 
 };
 
 class FiltraNaN {
-
   private:
-  float _Umi;
-  float _Temp;
-  float _Press;
+  double _Umi;
+  double _Temp;
+  double _Press;
   double _10k;
   int cont;
 
   public:
-  float umi_NaN(float umi, float *u) {
-    _Umi = umi;
+  double umi_NaN (double umidade, double *pUmidade) {
+    _Umi = umidade;
     if (!isnan(_Umi)) {
-      *u = _Umi;
+      *pUmidade = _Umi;
     }
     cont = 0;
     while (isnan(_Umi) && cont < 1000){
-      _Umi = umi;
+      _Umi = umidade;
       cont ++;
     }
-    if (cont == 1000) {
-      return *u;
-    }
-    else {
-      return _Umi;
-    }
+    return (cont == 1000) ? *pUmidade : _Umi;
+    
   }
 
-  float temp_Nan(float temp, float *t) {
-    _Temp = temp;
+  double temp_Nan (double temperatura_1, double *ptemperatura_1) {
+    _Temp = temperatura_1;
     if (!isnan(_Temp)) {
-      *t = _Temp;
+      *ptemperatura_1 = _Temp;
     }
     cont = 0;
     while (isnan(_Temp) && cont < 1000) {
-      _Temp = temp;
+      _Temp = temperatura_1;
       cont++;
     }
-    if (cont == 1000) {
-      return *t;
-    }
-    else {
-      return _Temp;
-    }
+    return (cont == 1000) ? *ptemperatura_1 : _Temp;
+    
   }
 
-  float press_Nan(float press, float *p) {
+  double press_Nan (double press, double *pPressao) {
     _Press = press;
     if (!isnan(_Press)) {
-      *p = _Press;
+      *pPressao = _Press;
     }
     
     cont = 0;
@@ -82,30 +71,22 @@ class FiltraNaN {
       _Press = press;
       cont++;
     }
-    if (cont == 1000) {
-      return *p;
-    }
-    else {
-      return _Press;
-    }
+    return (cont == 1000) ? *pPressao : _Press;
+    
   }
 
-  double t10k_Nan(double t10k, double *t10) {
-    _10k = t10k;
+  double t10k_Nan(double temperatura_10k, double *pTemperatura_2) {
+    _10k = temperatura_10k;
     if (!isnan(_10k)) {
-      *t10 = _10k;
+      *pTemperatura_2 = _10k;
     }
     cont = 0;
     while (isnan(_10k) && cont < 1000) {
-      _10k = t10k;
+      _10k = temperatura_10k;
       cont++;
     }
-    if (cont == 1000) {
-      return *t10;
-    }
-    else {
-      return _10k;
-    }
+    return (cont == 1000) ? *pTemperatura_2 : _10k;
+    
   }
 };
 
