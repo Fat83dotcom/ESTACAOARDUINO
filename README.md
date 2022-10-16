@@ -3,3 +3,5 @@
 
 Dúvidas ou sugestões, escreva para: 
  fernando.quimic@gmail.com
+ 
+ versão descontinuada
